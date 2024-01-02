@@ -28,5 +28,33 @@ namespace HtmlSerializer
         }
 
         public HtmlElement(){ }
+        public IEnumerable<HtmlElement> GetDescendants()
+        {
+            Queue<HtmlElement> queue = new Queue<HtmlElement>();
+            queue.Enqueue(this);
+            while (queue.Count > 0)
+            {
+                HtmlElement currentElement = queue.Dequeue();
+                yield return currentElement;
+                foreach(HtmlElement child in currentElement.Children)
+                {
+                    queue.Enqueue(child);
+                }
+            }
+        }
+        public IEnumerable<HtmlElement> GetAncestors()
+        {
+            HtmlElement currentHtmlElement = this.Parent;
+            while(currentHtmlElement is not null)
+            {
+                yield return currentHtmlElement;
+                currentHtmlElement = currentHtmlElement.Parent;
+            }
+        }
+
+        //public override bool Equals(object? obj)
+        //{
+        //    return base.Equals(obj) && (obj as HtmlElement). == this.TagName;
+        //}
     }
 }
