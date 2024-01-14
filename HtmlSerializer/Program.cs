@@ -4,20 +4,18 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-Console.WriteLine("Hello, World!");
+
 
 var html = await Load("https://moodle.malkabruk.co.il/mod/book/view.php?id=100&chapterid=123");
-var claenHtml = new Regex("\\s").Replace(html, "");
-var htmlLines = new Regex("<(.*?)>").Split(claenHtml).Where(s => s.Length > 0);
-//var attribute = new Regex("([^\\s]^?)=\"(.*?)\"").Matches();
+var cleanHtml= Regex.Replace(html, @"^\s+$[\r\n]*", string.Empty, RegexOptions.Multiline);
+var htmlLines = new Regex("<(.*?)>").Split(html).Where(s => s.Length > 0);
 var rootElement = new HtmlElement();
 var currentElement = rootElement;
 var allTags = HtmlHelper.Instance.HtmlAllTags;
 var htmlTagsWithoutClose = HtmlHelper.Instance.HtmlTagsWithoutClose;
-
 foreach (var htmlLine in htmlLines)
 {
-    string currentWord = new Regex("(.*)[^=]").Match(htmlLine).Value;
+    var currentWord = new Regex("^\\W*([\\w-]+)").Match(htmlLine).ToString();
     if (currentWord == "/html")
     {
         break;
@@ -31,12 +29,15 @@ foreach (var htmlLine in htmlLines)
         HtmlElement newElement = new HtmlElement();
         currentElement.Children.Add(newElement);
         newElement.Name = currentWord;
-        var attributes = new Regex("([^\\s]^?)=\"(.*?)\"").Matches(htmlLine);
+
+        var attributes1 = new Regex("( .*)").Match(htmlLine);
+        var attributes = new Regex("(.*?)=\"(.*?)\"").Matches(attributes1.ToString());
         foreach (var item in attributes)
         {
             newElement.Attributes.Add(item.ToString());
-            if (item.ToString() == "Id")
-                newElement.ID = item.ToString();
+            var nameAttribute= new Regex("^\\W*([\\w-]+)").Match(item.ToString()).ToString();
+            if (nameAttribute.ToString()==" id")
+                newElement.ID = new Regex("(=.*)").Match(item.ToString()).ToString();
         }
         var classAttribute = new Regex("class=\"(.*?)\"").Match(attributes.ToString());
         var classAttributes = new Regex("[^class=]").Matches(classAttribute.ToString());
@@ -67,6 +68,10 @@ async Task<string> Load(string url)
     var html = await response.Content.ReadAsStringAsync();
     return html;
 }
+string str = "div";
+HashSet<HtmlElement> hash = rootElement.GetElementsBySelector(Selector.GetSelector(str));
+hash.ToList<HtmlElement>().ForEach(a => Console.WriteLine(a));
+
 
 Console.ReadKey();
 

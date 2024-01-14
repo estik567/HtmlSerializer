@@ -10,7 +10,7 @@ namespace HtmlSerializer
     {
         public string ID { get; set; }
         public string Name { get; set; }
-        public List<string> Attributes { get; set; }
+        public List<string> Attributes { get; set; }=new List<string>();
         public List<string> Classes { get; set; }
         public string InnerHtml { get; set; }
         public HtmlElement Parent { get; set; }
@@ -52,9 +52,13 @@ namespace HtmlSerializer
             }
         }
 
-        //public override bool Equals(object? obj)
-        //{
-        //    return base.Equals(obj) && (obj as HtmlElement). == this.TagName;
-        //}
+        public override string ToString()
+        {
+            string result = "id ";
+            result+= this.ID ==null?"=null":this.ID.ToString();
+            result += " name= ";
+            result+= this.Name == null ? "null" : this.Name.ToString();
+            return result;
+        }
     }
 }

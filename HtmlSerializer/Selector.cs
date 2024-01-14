@@ -13,17 +13,20 @@ namespace HtmlSerializer
         public string TagName { get; set; }
         public string Id { get; set; }
         public List<string> Classes { get; set; } = new List<string>();
-        public Selector Parent { get; set; } = new Selector();
-        public Selector Child { get; set; } = new Selector();
-
-
-        static Selector GetSelector(string str)
+        public Selector Parent { get; set; }
+        public Selector Child { get; set; }
+        public Selector()
         {
-            Selector rootSelector=null, currentSelector=new Selector();
+
+        }
+
+        public static Selector GetSelector(string str)
+        {
+            Selector rootSelector = null, currentSelector = null;
             var allTags = HtmlHelper.Instance.HtmlAllTags;
             var htmlTagsWithoutClose = HtmlHelper.Instance.HtmlTagsWithoutClose;
             var arrStr = str.Split(" ");
-            foreach(var item in arrStr)
+            foreach (var item in arrStr)
             {
                 Selector newSelector = new Selector();
                 string[] strSelector = item.Split(new char[] { '#', '.' }).ToArray();
@@ -31,28 +34,25 @@ namespace HtmlSerializer
                 {
                     newSelector.TagName = strSelector[0];
                 }
-                newSelector.Id = strSelector[1];
-                newSelector.Classes.Add(strSelector[2]);
-                newSelector.Parent = currentSelector;
-                currentSelector.Child = newSelector;
-                if(rootSelector == null) {
-                    rootSelector = currentSelector;
+                if (strSelector.Count() > 1)
+                    newSelector.Id = strSelector[1];
+                if (strSelector.Count() > 2)
+                    newSelector.Classes.Add(strSelector[2]);
+                if (currentSelector == null)
+                {
+                    currentSelector = new Selector();
+                    newSelector.Parent = null;
+                    rootSelector = newSelector;
                 }
+                else
+                {
+                    newSelector.Parent = currentSelector;
+                    currentSelector.Child = newSelector;
+                }
+
                 currentSelector = newSelector;
             }
             return rootSelector;
         }
-
-        //public override bool Equals(object? obj)
-        //{
-        //    return base.Equals(obj) && (obj is Selector) &&
-        //        (obj as Selector).TagName==this.TagName &&
-        //        (obj as Selector).Id == this.Id &&
-        //        (obj as Selector).Classes.Equals(this.Classes)&&
-        //         (obj as Selector).Parent.Equals(this.Parent)&&
-        //          (obj as Selector).Child.Equals(this.Child);
-        //}
-
-
     }
 }

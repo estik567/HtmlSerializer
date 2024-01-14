@@ -19,16 +19,10 @@ namespace HtmlSerializer
         private HtmlHelper()
         {
             var contentAllTags = File.ReadAllText("Tags/HtmlTags.txt");
-            //HtmlAllTags = JsonConverter.DeserializeObject<List<string>>(contentAllTags);
-            //dynamic dy = JsonSerializer.Deserialize<dynamic>(contentAllTags);
-            //HtmlAllTags = dy;
             HtmlAllTags = JsonSerializer.Deserialize<List<string>>(contentAllTags);
 
             var contentTagsWithoutClose = File.ReadAllText("Tags/HtmlVoidTags.txt");
-            //dynamic dy = JsonSerializer.Deserialize<dynamic>(contentTagsWithoutClose);
-            //HtmlTagsWithoutClose = (List<string>) dy;
-            //HtmlTagsWithoutClose = (List<string>)JsonSerializer.Deserialize(contentTagsWithoutClose, HtmlTagsWithoutClose.GetType());
-            HtmlTagsWithoutClose = JsonSerializer.Deserialize< List<string>>(contentTagsWithoutClose);
+            HtmlTagsWithoutClose = JsonSerializer.Deserialize<List<string>>(contentTagsWithoutClose);
 
         }
 
