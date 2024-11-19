@@ -4,9 +4,16 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-
+async Task<string> Load(string url)
+{
+    HttpClient client = new HttpClient();
+    var response = await client.GetAsync(url);
+    var html = await response.Content.ReadAsStringAsync();
+    return html;
+}
 
 var html = await Load("https://moodle.malkabruk.co.il/mod/book/view.php?id=100&chapterid=123");
+
 var cleanHtml= Regex.Replace(html, @"^\s+$[\r\n]*", string.Empty, RegexOptions.Multiline);
 var htmlLines = new Regex("<(.*?)>").Split(html).Where(s => s.Length > 0);
 var rootElement = new HtmlElement();
@@ -27,11 +34,10 @@ foreach (var htmlLine in htmlLines)
     else if (allTags.Contains(currentWord))
     {
         HtmlElement newElement = new HtmlElement();
-        currentElement.Children.Add(newElement);
         newElement.Name = currentWord;
-
-        var attributes1 = new Regex("( .*)").Match(htmlLine);
-        var attributes = new Regex("(.*?)=\"(.*?)\"").Matches(attributes1.ToString());
+        currentElement.Children.Add(newElement);
+        var onlyAttributes = new Regex("( .*)").Match(htmlLine);
+        var attributes = new Regex("(.*?)=\"(.*?)\"").Matches(onlyAttributes.ToString());
         foreach (var item in attributes)
         {
             newElement.Attributes.Add(item.ToString());
@@ -61,14 +67,8 @@ foreach (var htmlLine in htmlLines)
         currentElement.InnerHtml += htmlLine;
     }
 }
-async Task<string> Load(string url)
-{
-    HttpClient client = new HttpClient();
-    var response = await client.GetAsync(url);
-    var html = await response.Content.ReadAsStringAsync();
-    return html;
-}
-string str = "div";
+
+string str = "link";
 HashSet<HtmlElement> hash = rootElement.GetElementsBySelector(Selector.GetSelector(str));
 hash.ToList<HtmlElement>().ForEach(a => Console.WriteLine(a));
 
